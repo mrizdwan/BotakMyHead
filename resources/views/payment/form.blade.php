@@ -17,7 +17,7 @@
             <div class="alert alert-danger">{{ session('error') }}</div>
         @endif
 
-        <form action="{{ url('/payment/process') }}" method="POST" enctype="application/x-www-form-urlencoded">
+        <form action="{{ secure_url('/payment/process') }}" method="POST" enctype="application/x-www-form-urlencoded">
             @csrf
             <div>
                 <label for="ca_code">CA Code:</label>

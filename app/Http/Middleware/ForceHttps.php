@@ -16,7 +16,8 @@ class ForceHttps
      */
     public function handle(Request $request, Closure $next)
     {
-        if (!$request->isSecure()) {
+        // Check if the request is secure
+        if (!$request->secure() && !$request->isLocal()) {
             return redirect()->secure($request->getRequestUri());
         }
 
