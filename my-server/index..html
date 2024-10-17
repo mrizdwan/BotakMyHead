@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script defer="" data-domain="supergen.tiiny.site" src="https://analytics.tiiny.site/js/plausible.js"></script>
+</head>
+<body>
+    <form id="codeForm">
+        <h3>You can generate code here</h3>
+        <input type="text" id="code" placeholder="User Id" required>
+        <input type="button" value="Check" onclick="checkDoc();">
+        <input type="button" value="Generate Code" onclick="gc();">
+        <input type="button" value="Extra Features" onclick="extraFeatures();">
+        <input type="button" value="CM Mode" onclick="cmMode();">
+        <input type="button" value="Klang" onclick="klangMode();">
+    </form>
+    <h4 id="res"></h4>
+    <input type="text" id="generatedCode" placeholder="Generated Code" readonly>
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+    <script src="https://supergen.tiiny.site/vale-helper.js"></script>
+    
+    <script>
+        // Initialize Firebase
+        const firebaseConfig = {
+            apiKey: "your-api-key",
+            authDomain: "your-auth-domain",
+            projectId: "your-project-id",
+            storageBucket: "your-storage-bucket",
+            messagingSenderId: "your-messaging-sender-id",
+            appId: "your-app-id",
+            measurementId: "your-measurement-id"
+        };
+        
+        firebase.initializeApp(firebaseConfig);
+        var db = firebase.firestore();
+
+        function checkDoc() {
+            let key = document.getElementById("code").value.toUpperCase();
+            let monthId = new Date().getMonth() + 1;
+            let shortYearString = new Date().getFullYear().toString().slice(2, 4);
+            let docRef = db.collection('usrkey' + monthId + '_' + shortYearString).doc(key);
+            docRef.get().then((doc) => {
+                if (doc.exists) {
+                    alert("Document exists!");
+                } else {
+                    alert("No such document!");
+                }
+            }).catch((error) => {
+                console.log("Error getting document:", error);
+            });
+        }
+
+        async function gc() {
+            let id = document.getElementById("code").value.toUpperCase();
+            let generatedCode = "GeneratedCode"; // Replace with your actual generation logic
+            document.getElementById("res").innerHTML = "Generate Code: " + generatedCode;
+            document.getElementById("generatedCode").value = generatedCode;
+
+            const response = await fetch('http://localhost:3000/process-payment', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ amount: 100, paymentMethod: 'Credit Card', code: generatedCode })
+            });
+
+            const data = await response.json();
+            console.log(data);
+        }
+
+        async function extraFeatures() {
+            await gc(); // Generate code first
+
+            let key = document.getElementById("code").value.toUpperCase();
+            let generatedCode = document.getElementById("generatedCode").value;
+
+            const response = await fetch('http://localhost:3000/extra-features', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ key, code: generatedCode, exfeatures: true })
+            });
+
+            const data = await response.json();
+            console.log(data);
+            alert("Extra features set!");
+        }
+
+        async function cmMode() {
+            await gc(); // Generate code first
+
+            let key = document.getElementById("code").value.toUpperCase();
+            let generatedCode = document.getElementById("generatedCode").value;
+
+            const response = await fetch('http://localhost:3000/cm-mode', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ key, code: generatedCode, cmmode: true })
+            });
+
+            const data = await response.json();
+            console.log(data);
+            alert("CM mode set!");
+        }
+
+        async function klangMode() {
+            let id = document.getElementById("code").value.toUpperCase();
+            let generatedCode = document.getElementById("generatedCode").value;
+
+            const response = await fetch('http://localhost:3000/klang-mode', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ id, code: generatedCode, klang: true })
+            });
+
+            const data = await response.json();
+            console.log(data);
+            alert("Klang mode set!");
+        }
+
+        function upper(text, index) {
+            return text.slice(0, index) + text.slice(index).toUpperCase(); 
+        }
+
+        function lower(text, index) {
+            return text.slice(0, index) + text.slice(index).toLowerCase(); 
+        }
+
+        // Include the remaining utility functions here
+
+        function csr(msg, key) {
+            let c = [];
+            msg = msg.toUpperCase();
+            key = parseInt(key);
+            
+            for (var i = 0; i < msg.length; i++) {
+                let x = ((msg.charCodeAt(i) - 65) + key++) % 26;
+                c.push(String.fromCharCode(x + 65));
+            }
+            
+            return c.join('');
+        }
+
+        function vig(msg, key) {
+            let c = [];
+            msg = msg.toUpperCase();
+            
+            for (var i = 0; i < msg.length; i++) {
+                let x = ((msg.charCodeAt(i) - 65) + (key.charCodeAt(i % key.length) - 65)) % 26;
+                c.push(String.fromCharCode(x + 65));
+            }
+            
+            return c.join('');
+        }
+
+        function revstr(text) {
+            return text.split('').reverse().join('');
+        }
+
+        function getTarikhShortYearSum() {
+            const shortYear = new Date().getFullYear().toString().slice(2, 4);
+            let sum = 0;
+            
+            for (let i = 0; i < shortYear.length; i++) {
+                sum += parseInt(shortYear[i]);
+            }
+            
+            return sum;
+        }
+    </script>
+</body>
+</html>
