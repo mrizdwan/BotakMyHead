@@ -74,7 +74,7 @@ class PaymentController extends Controller
             $billcode = $obj[0]['BillCode'];
 
             // Redirect to payment gateway
-            return redirect("https://dev.toyyibpay.com/{$billcode}");
+            return redirect()->away("https://dev.toyyibpay.com/{$billcode}");
         }
 
         // Handle failure
